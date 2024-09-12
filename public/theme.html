@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soup - 테마</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <style>
+        :root {
+            --main-color: #8B0000;
+        }
+        body {
+            font-family: 'Pretendard', sans-serif;
+        }
+        #theme-description {
+            text-align: center;
+        }
+        #theme-description p {
+            margin-bottom: 1em;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'main': '#8B0000',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100 flex flex-col min-h-screen">
+    <main class="flex-grow flex items-center justify-center p-4">
+        <div class="w-full max-w-[500px] sm:max-w-[400px]">
+            <h1 id="theme-title" class="text-3xl sm:text-4xl font-bold text-main mb-4 sm:mb-6 text-center">테마 로딩 중...</h1>
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body px-4 py-5 sm:px-6 sm:py-6">
+                    <div id="theme-description" class="text-sm sm:text-base">
+                        <p>상황을 불러오는 중입니다...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-4 sm:mt-6">
+                <button id="start-chat" class="btn btn-sm bg-main hover:bg-red-900 text-white border-none px-5" disabled>채팅 시작하기</button>
+            </div>
+        </div>
+    </main>
+    <footer class="footer footer-center p-4 bg-base-300 text-base-content text-sm">
+        <div>
+            <p>Copyright © 2024 - 양정고등학교 파이썬부</p>
+        </div>
+    </footer>
+    <script>
+        function sanitizeHTML(str) {
+            const temp = document.createElement('div');
+            temp.textContent = str;
+            return temp.innerHTML;
+        }
+
+        function formatDescription(description) {
+            return description.split('<br>').map(line => `<p>${sanitizeHTML(line)}</p>`).join('');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const themeId = urlParams.get('id');
+
+            if (themeId) {
+                fetch(`https://soup.yrht.workers.dev/api/load/${themeId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('theme-title').textContent = data.title;
+                        const descriptionElement = document.getElementById('theme-description');
+                        descriptionElement.innerHTML = formatDescription(data.description);
+                        const startChatButton = document.getElementById('start-chat');
+                        startChatButton.disabled = false;
+                        startChatButton.onclick = function() {
+                            window.location.href = `/chat?id=${themeId}`;
+                        };
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        document.getElementById('theme-title').textContent = '오류 발생';
+                        document.getElementById('theme-description').innerHTML = '<p>테마 정보를 불러오는 데 실패했습니다.</p>';
+                    });
+            } else {
+                document.getElementById('theme-title').textContent = '오류';
+                document.getElementById('theme-description').innerHTML = '<p>테마 ID가 제공되지 않았습니다.</p>';
+            }
+        });
+    </script>
+</body>
+</html>
