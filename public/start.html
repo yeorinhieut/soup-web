@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soup - 게임 규칙</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <style>
+        :root {
+            --main-color: #8B0000;
+        }
+        body {
+            font-family: 'Pretendard', sans-serif;
+        }
+        .highlight {
+            color: #8B0000;
+            font-weight: 600;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'main': '#8B0000',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100 flex flex-col min-h-screen">
+    <main class="flex-grow flex items-center justify-center p-4">
+        <div class="max-w-[500px] w-full">
+            <h1 class="text-4xl font-bold text-main mb-6 text-center">게임 규칙</h1>
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body px-6 py-6">
+                    <div class="alert bg-main text-white mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                        <span>외부 인터넷 검색 없이 게임을 플레이하세요.</span>
+                    </div>
+                    <ul class="list-disc list-inside space-y-3 text-sm">
+                        <li>당신은 일상생활 또는 범죄사건에서 일어난 <span class="highlight">사건의 진상</span>을 파악해야 합니다.</li>
+                        <li><span class="highlight">사건의 진상을 알고있는 사람에게</span> 질문을 할 수 있습니다.</li>
+                        <li>그 사람은 <span class="highlight">예/아니오</span>로 대답이 불가능한 질문에는 대답하지 않습니다.</li>
+                        <li>기본적으로 <span class="highlight">15번</span>의 기회가 주어집니다.</li>
+                        <li>힌트는 총 3회 제공 하지만, 힌트 사용 시 기회가 <span class="highlight">3회 차감</span>됩니다.</li>
+                        <li>질문 횟수가 소진되기 전, 사건의 진상을 파악하는 것이 <span class="highlight">당신의 목표</span>입니다.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="text-center mt-6">
+                <a href="./game" class="btn btn-sm bg-main hover:bg-red-900 text-white border-none px-6">진행하기</a>
+            </div>
+        </div>
+    </main>
+    <footer class="footer footer-center p-4 bg-base-300 text-base-content">
+        <div>
+            <p>Copyright © 2024 - 양정고등학교 파이썬부</p>
+        </div>
+    </footer>
+</body>
+</html>
