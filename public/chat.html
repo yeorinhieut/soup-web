@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soup - 채팅</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <style>
+        :root {
+            --main-color: #8B0000;
+        }
+        body {
+            font-family: 'Pretendard', sans-serif;
+        }
+        .chat-container {
+            height: calc(100vh - 280px);
+            overflow-y: auto;
+            padding-bottom: 80px;  /* 하단 패딩 추가 */
+        }
+        .chat-message {
+            margin-bottom: 12px;
+        }
+        .input-area {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem;
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+        }
+        .chat-bubble {
+            white-space: pre-wrap;  /* 줄바꿈 보존 */
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'main': '#8B0000',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100 flex flex-col min-h-screen">
+    <div class="flex-grow flex items-center justify-center p-4">
+        <div class="w-full max-w-4xl">
+            <div class="mockup-window border bg-base-300">
+                <div class="flex justify-center px-4 py-2 bg-base-200">
+                    <div class="w-full">
+                        <div class="chat-container" id="chat-container">
+                            <!-- 채팅 메시지들이 여기에 추가됩니다 -->
+                        </div>
+                        <div class="input-area">
+                            <div class="join w-full">
+                                <button class="btn join-item bg-main text-white" id="hint-btn">힌트</button>
+                                <input type="text" placeholder="질문을 입력하세요. (남은 횟수 : 15)" class="input input-bordered join-item w-full" id="chat-input" />
+                                <button class="btn join-item bg-main text-white" id="send-btn">전송</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let themeId;
+        let remainingAttempts = 15;
+        let currentHint = 0;
+        let startTime;
+        let themeName = "";
+        const chatContainer = document.getElementById('chat-container');
+        const chatInput = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('send-btn');
+        const hintBtn = document.getElementById('hint-btn');
+
+        function updateRemainingAttempts(value) {
+            remainingAttempts = value;
+            chatInput.placeholder = `질문을 입력하세요. (남은 횟수 : ${value})`;
+            if (value <= 0) {
+                addMessage('남은 기회를 모두 소진했습니다. 페이지를 새로고침하여 다시 시작하세요.');
+                chatInput.disabled = true;
+                sendBtn.disabled = true;
+                hintBtn.disabled = true;
+            }
+        }
+
+        function addMessage(content, isUser = false, isSuccess = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat ${isUser ? 'chat-end' : 'chat-start'} chat-message`;
+            messageDiv.innerHTML = `
+                <div class="chat-bubble ${isUser ? 'bg-main text-white' : ''} ${isSuccess ? 'bg-main text-white' : ''}">${content}</div>
+            `;
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function calculateScore() {
+            const endTime = new Date();
+            const timeDiff = Math.floor((endTime - startTime) / 1000); // 초 단위
+            const randomBonus = Math.floor(Math.random() * (150 - 50 + 1)) + 50;
+            return 500 - timeDiff + (remainingAttempts * 25) + randomBonus;
+        }
+
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${minutes}분 ${remainingSeconds}초`;
+        }
+
+        function showSuccessMessage(answerContent) {
+            const score = calculateScore();
+            const timeTaken = Math.floor((new Date() - startTime) / 1000);
+            addMessage(`성공!
+테마명: ${themeName}
+걸린 시간: ${formatTime(timeTaken)}
+남은 횟수: ${remainingAttempts}
+점수: ${score}`, false, true);
+            
+            // 추가 안내 메시지
+            addMessage(`스템프를 받기 위해서는 현재 페이지를 담당자에게 보여주세요.
+다른 테마를 플레이하려면, <a href="./start" target="_blank" class="text-blue-500">여기</a>를 눌러주세요`);
+            
+            chatInput.disabled = true;
+            sendBtn.disabled = true;
+            hintBtn.disabled = true;
+        }
+
+        sendBtn.onclick = async () => {
+            const question = chatInput.value.trim();
+            if (question && remainingAttempts > 0) {
+                addMessage(question, true);
+                chatInput.value = '';
+                updateRemainingAttempts(remainingAttempts - 1);
+
+                try {
+                    const response = await fetch(`https://soup.yrht.workers.dev/api/question/${themeId}?q=${encodeURIComponent(question)}`);
+                    const data = await response.json();
+                    addMessage(data.reply);
+
+                    if (data.isanswer) {
+                        showSuccessMessage(data.isanswer);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    addMessage('오류가 발생했습니다. 다시 시도해주세요.');
+                }
+            }
+        };
+
+        hintBtn.onclick = async () => {
+            if (remainingAttempts >= 3) {
+                if (currentHint < 3) {
+                    updateRemainingAttempts(remainingAttempts - 3);
+                    currentHint++;
+
+                    try {
+                        const response = await fetch(`https://soup.yrht.workers.dev/api/hint/${themeId}/${currentHint}`);
+                        const data = await response.json();
+                        addMessage(`힌트 ${currentHint}: ${data.hint}`);
+                        
+                        if (currentHint === 3) {
+                            hintBtn.disabled = true;
+                            hintBtn.textContent = '힌트 소진';
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        addMessage('힌트를 가져오는 데 실패했습니다.');
+                        currentHint--; // 실패 시 힌트 카운트 롤백
+                    }
+                } else {
+                    addMessage('모든 힌트를 이미 사용했습니다.');
+                }
+            } else {
+                addMessage('힌트를 사용할 수 있는 기회가 부족합니다.');
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            themeId = urlParams.get('id');
+            startTime = new Date();
+
+            if (themeId) {
+                try {
+                    const response = await fetch(`https://soup.yrht.workers.dev/api/load/${themeId}`);
+                    const data = await response.json();
+                    themeName = data.title;
+                    addMessage(data.description);
+                } catch (error) {
+                    console.error('Error:', error);
+                    addMessage('테마 정보를 불러오는 데 실패했습니다.');
+                }
+            } else {
+                addMessage('올바른 테마 ID가 제공되지 않았습니다.');
+            }
+        });
+
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendBtn.click();
+            }
+        });
+    </script>
+</body>
+</html>
