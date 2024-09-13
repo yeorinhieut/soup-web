@@ -15,9 +15,8 @@
             font-family: 'Pretendard', sans-serif;
         }
         .chat-container {
-            height: calc(100vh - 280px);
             overflow-y: auto;
-            padding-bottom: 80px;  /* 하단 패딩 추가 */
+            padding-bottom: 80px;
         }
         .chat-message {
             margin-bottom: 12px;
@@ -32,7 +31,7 @@
             backdrop-filter: blur(10px);
         }
         .chat-bubble {
-            white-space: pre-wrap;  /* 줄바꿈 보존 */
+            white-space: pre-wrap;
         }
     </style>
     <script>
@@ -48,11 +47,11 @@
     </script>
 </head>
 <body class="bg-gray-100 flex flex-col min-h-screen">
-    <div class="flex-grow flex items-center justify-center p-4">
-        <div class="w-full max-w-4xl">
-            <div class="mockup-window border bg-base-300">
-                <div class="flex justify-center px-4 py-2 bg-base-200">
-                    <div class="w-full">
+    <div class="flex-grow flex items-center justify-center p-2 sm:p-4">
+        <div class="w-full h-full max-w-4xl">
+            <div class="mockup-window border bg-base-300 h-full">
+                <div class="flex justify-center px-2 sm:px-4 py-2 bg-base-200 h-full">
+                    <div class="w-full h-full relative">
                         <div class="chat-container" id="chat-container">
                             <!-- 채팅 메시지들이 여기에 추가됩니다 -->
                         </div>
@@ -80,9 +79,26 @@
         const sendBtn = document.getElementById('send-btn');
         const hintBtn = document.getElementById('hint-btn');
 
+        function updateLayout() {
+            const windowHeight = window.innerHeight;
+            const containerHeight = windowHeight - 100; // 상하 여백을 고려한 높이 조정
+            document.querySelector('.mockup-window').style.height = `${containerHeight}px`;
+            chatContainer.style.height = `${containerHeight - 80}px`; // 입력 영역 높이를 고려한 조정
+            updatePlaceholder();
+        }
+
+        function updatePlaceholder() {
+            const inputWidth = chatInput.offsetWidth;
+            if (inputWidth < 300) {
+                chatInput.placeholder = `남은 횟수 : ${remainingAttempts}`;
+            } else {
+                chatInput.placeholder = `질문을 입력하세요. (남은 횟수 : ${remainingAttempts})`;
+            }
+        }
+
         function updateRemainingAttempts(value) {
             remainingAttempts = value;
-            chatInput.placeholder = `질문을 입력하세요. (남은 횟수 : ${value})`;
+            updatePlaceholder();
             if (value <= 0) {
                 addMessage('남은 기회를 모두 소진했습니다. 페이지를 새로고침하여 다시 시작하세요.');
                 chatInput.disabled = true;
@@ -103,7 +119,7 @@
 
         function calculateScore() {
             const endTime = new Date();
-            const timeDiff = Math.floor((endTime - startTime) / 1000); // 초 단위
+            const timeDiff = Math.floor((endTime - startTime) / 1000);
             const randomBonus = Math.floor(Math.random() * (150 - 50 + 1)) + 50;
             return 500 - timeDiff + (remainingAttempts * 25) + randomBonus;
         }
@@ -123,7 +139,6 @@
 남은 횟수: ${remainingAttempts}
 점수: ${score}`, false, true);
             
-            // 추가 안내 메시지
             addMessage(`스템프를 받기 위해서는 현재 페이지를 담당자에게 보여주세요.
 다른 테마를 플레이하려면, <a href="./start" target="_blank" class="text-blue-500">여기</a>를 눌러주세요`);
             
@@ -172,7 +187,7 @@
                     } catch (error) {
                         console.error('Error:', error);
                         addMessage('힌트를 가져오는 데 실패했습니다.');
-                        currentHint--; // 실패 시 힌트 카운트 롤백
+                        currentHint--;
                     }
                 } else {
                     addMessage('모든 힌트를 이미 사용했습니다.');
@@ -200,6 +215,9 @@
             } else {
                 addMessage('올바른 테마 ID가 제공되지 않았습니다.');
             }
+
+            updateLayout();
+            window.addEventListener('resize', updateLayout);
         });
 
         chatInput.addEventListener('keypress', (e) => {
