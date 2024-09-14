@@ -168,7 +168,7 @@
 
                 try {
                     const prefix = isAnswerMode ? '{answertry}' : '';
-                    const response = await fetch(`https://soup.yrht.workers.dev/api/question/${themeId}?q=${encodeURIComponent(prefix + question)}`);
+                    const response = await fetch(`https://api.soup.yangchu.ng/v1/question/${themeId}?q=${encodeURIComponent(prefix + question)}`);
                     const data = await response.json();
                     addMessage(data.reply);
 
@@ -192,7 +192,7 @@
                     currentHint++;
 
                     try {
-                        const response = await fetch(`https://soup.yrht.workers.dev/api/hint/${themeId}/${currentHint}`);
+                        const response = await fetch(`https://api.soup.yangchu.ng/v1/hint/${themeId}/${currentHint}`);
                         const data = await response.json();
                         addMessage(`힌트 ${currentHint}: ${data.hint}`);
                         
@@ -233,7 +233,7 @@
 
             if (themeId) {
                 try {
-                    const response = await fetch(`https://soup.yrht.workers.dev/api/load/${themeId}`);
+                    const response = await fetch(`https://api.soup.yangchu.ng/v1/load/${themeId}`);
                     const data = await response.json();
                     themeName = data.title;
                     addMessage(data.description);

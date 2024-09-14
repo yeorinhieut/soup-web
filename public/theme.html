@@ -70,7 +70,7 @@
             const themeId = urlParams.get('id');
 
             if (themeId) {
-                fetch(`https://soup.yrht.workers.dev/api/load/${themeId}`)
+                fetch(`https://api.soup.yangchu.ng/v1/load/${themeId}`)
                     .then(response => response.json())
                     .then(data => {
                         document.getElementById('theme-title').textContent = data.title;
