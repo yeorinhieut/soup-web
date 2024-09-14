@@ -17,6 +17,11 @@
         .chat-container {
             overflow-y: auto;
             padding-bottom: 80px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .chat-container::-webkit-scrollbar {
+            display: none;
         }
         .chat-message {
             margin-bottom: 12px;
@@ -56,8 +61,11 @@
                             <!-- 채팅 메시지들이 여기에 추가됩니다 -->
                         </div>
                         <div class="input-area">
-                            <div class="join w-full">
+                            <div class="join w-full mb-2">
                                 <button class="btn join-item bg-main text-white" id="hint-btn">힌트</button>
+                                <button class="btn join-item bg-main text-white" id="answer-btn">정답</button>
+                            </div>
+                            <div class="join w-full">
                                 <input type="text" placeholder="질문을 입력하세요. (남은 횟수 : 15)" class="input input-bordered join-item w-full" id="chat-input" />
                                 <button class="btn join-item bg-main text-white" id="send-btn">전송</button>
                             </div>
@@ -74,16 +82,18 @@
         let currentHint = 0;
         let startTime;
         let themeName = "";
+        let isAnswerMode = false;
         const chatContainer = document.getElementById('chat-container');
         const chatInput = document.getElementById('chat-input');
         const sendBtn = document.getElementById('send-btn');
         const hintBtn = document.getElementById('hint-btn');
+        const answerBtn = document.getElementById('answer-btn');
 
         function updateLayout() {
             const windowHeight = window.innerHeight;
             const containerHeight = windowHeight - 100; // 상하 여백을 고려한 높이 조정
             document.querySelector('.mockup-window').style.height = `${containerHeight}px`;
-            chatContainer.style.height = `${containerHeight - 80}px`; // 입력 영역 높이를 고려한 조정
+            chatContainer.style.height = `${containerHeight - 120}px`; // 입력 영역 높이를 고려한 조정
             updatePlaceholder();
         }
 
@@ -104,6 +114,7 @@
                 chatInput.disabled = true;
                 sendBtn.disabled = true;
                 hintBtn.disabled = true;
+                answerBtn.disabled = true;
             }
         }
 
@@ -145,6 +156,7 @@
             chatInput.disabled = true;
             sendBtn.disabled = true;
             hintBtn.disabled = true;
+            answerBtn.disabled = true;
         }
 
         sendBtn.onclick = async () => {
@@ -155,7 +167,8 @@
                 updateRemainingAttempts(remainingAttempts - 1);
 
                 try {
-                    const response = await fetch(`https://soup.yrht.workers.dev/api/question/${themeId}?q=${encodeURIComponent(question)}`);
+                    const prefix = isAnswerMode ? '{answertry}' : '';
+                    const response = await fetch(`https://soup.yrht.workers.dev/api/question/${themeId}?q=${encodeURIComponent(prefix + question)}`);
                     const data = await response.json();
                     addMessage(data.reply);
 
@@ -166,6 +179,9 @@
                     console.error('Error:', error);
                     addMessage('오류가 발생했습니다. 다시 시도해주세요.');
                 }
+                isAnswerMode = false;
+                answerBtn.classList.remove('bg-gray-500');
+                answerBtn.classList.add('bg-main');
             }
         };
 
@@ -194,6 +210,19 @@
                 }
             } else {
                 addMessage('힌트를 사용할 수 있는 기회가 부족합니다.');
+            }
+        };
+
+        answerBtn.onclick = () => {
+            isAnswerMode = !isAnswerMode;
+            if (isAnswerMode) {
+                answerBtn.classList.remove('bg-main');
+                answerBtn.classList.add('bg-gray-500');
+                addMessage('정답 모드가 활성화되었습니다. 다음 질문은 정답 시도로 간주됩니다.');
+            } else {
+                answerBtn.classList.remove('bg-gray-500');
+                answerBtn.classList.add('bg-main');
+                addMessage('정답 모드가 비활성화되었습니다.');
             }
         };
 
