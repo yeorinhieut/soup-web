@@ -145,14 +145,14 @@
             const score = calculateScore();
             const timeTaken = Math.floor((new Date() - startTime) / 1000);
             addMessage(`성공!
-테마명: ${themeName}
-걸린 시간: ${formatTime(timeTaken)}
-남은 횟수: ${remainingAttempts}
-점수: ${score}`, false, true);
+    테마명: ${themeName}
+    걸린 시간: ${formatTime(timeTaken)}
+    남은 횟수: ${remainingAttempts}
+    점수: ${score}`, false, true);
             
             addMessage(`스템프를 받기 위해서는 현재 페이지를 담당자에게 보여주세요.
-다른 테마를 플레이하려면, <a href="./start" target="_blank" class="text-blue-500">여기</a>를 눌러주세요`);
-            
+    다른 테마를 플레이하려면, <a href="./start?exclude=${themeId}" target="_blank" class="text-blue-500">여기</a>를 눌러주세요`);
+        
             chatInput.disabled = true;
             sendBtn.disabled = true;
             hintBtn.disabled = true;
