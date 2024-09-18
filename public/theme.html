@@ -44,8 +44,13 @@
                     </div>
                 </div>
             </div>
-            <div class="text-center mt-4 sm:mt-6">
+            <div class="text-center mt-4 sm:mt-6 flex justify-center gap-2">
                 <button id="start-chat" class="btn btn-sm bg-main hover:bg-red-900 text-white border-none px-5" disabled>채팅 시작하기</button>
+                <button id="reload-theme" class="btn btn-sm bg-main hover:bg-red-900 text-white border-none px-5 aspect-square">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                </button>
             </div>
         </div>
     </main>
@@ -91,6 +96,16 @@
                 document.getElementById('theme-title').textContent = '오류';
                 document.getElementById('theme-description').innerHTML = '<p>테마 ID가 제공되지 않았습니다.</p>';
             }
+
+            // 리로드 버튼 기능 추가
+            const reloadButton = document.getElementById('reload-theme');
+            reloadButton.onclick = function() {
+                let newThemeId;
+                do {
+                    newThemeId = Math.floor(Math.random() * 12) + 1; // 1부터 12까지의 랜덤 숫자
+                } while (newThemeId === parseInt(themeId));
+                window.location.href = `/theme?id=${newThemeId}`;
+            };
         });
     </script>
 </body>
